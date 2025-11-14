@@ -3,720 +3,1038 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Network - Protect Earth</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>White-headed Langur Conservation</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Leaflet CSS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Leaflet JavaScript for Interactive Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2D6A4F',
+                        secondary: '#40916C',
+                        accent: '#74C69D',
+                        light: '#D8F3DC',
+                        dark: '#1B4332',
+                        karst: '#A98467',
+                        'karst-dark': '#6C584C'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    },
+                    height: {
+                        '128': '32rem',
+                        '144': '36rem',
+                    },
+                    backgroundImage: {
+                        'hero-pattern': "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://p3-doubao-search-sign.byteimg.com/labis/4e06703a288df016da3280c12d0b8867~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=Zys9ciXfGJKcevUGokzE5gGfERw%3D')",
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            .text-shadow-lg {
+                text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+            }
+            .bg-blur {
+                backdrop-filter: blur(8px);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .transition-transform {
+                transition-property: transform;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 300ms;
+            }
+            .hover-scale:hover {
+                transform: scale(1.05);
+            }
+            .karst-bg {
+                background: linear-gradient(135deg, #A98467 0%, #6C584C 100%);
+            }
+        }
+    </style>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
+        
+        html {
+            scroll-behavior: smooth;
         }
-
-        :root {
-            --primary: #2e7d32;
-            --secondary: #4caf50;
-            --accent: #8bc34a;
-            --light: #e8f5e9;
-            --dark: #1b5e20;
-            --text: #333333;
-            --white: #ffffff;
-        }
-
-        body {
-            background-color: var(--light);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        header {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: var(--white);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .logo i {
-            font-size: 2rem;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-
-        nav ul li {
-            margin-left: 2rem;
-        }
-
-        nav ul li a {
-            color: var(--white);
-            text-decoration: none;
-            font-weight: 500;
+        
+        .gallery-item {
             transition: all 0.3s ease;
-            padding: 0.5rem 0;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .map-container {
+            height: 500px;
+            width: 100%;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .fact-card {
+            transition: all 0.3s ease;
+        }
+        
+        .fact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-link {
             position: relative;
         }
-
-        nav ul li a:hover {
-            color: var(--accent);
-        }
-
-        nav ul li a::after {
+        
+        .nav-link::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 0;
             width: 0;
             height: 2px;
-            background-color: var(--accent);
+            bottom: -2px;
+            left: 0;
+            background-color: #74C69D;
             transition: width 0.3s ease;
         }
-
-        nav ul li a:hover::after {
+        
+        .nav-link:hover::after {
             width: 100%;
         }
-
-        .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 80vh;
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: var(--white);
-        }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--accent);
-            color: var(--white);
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:hover {
-            background-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        section {
-            padding: 5rem 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-title h2 {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background-color: var(--accent);
-            border-radius: 2px;
-        }
-
-        .section-title p {
-            color: var(--text);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .about-img {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .about-img img {
+        
+        .active-nav::after {
             width: 100%;
-            height: auto;
-            display: block;
-            transition: transform 0.5s ease;
         }
-
-        .about-img:hover img {
-            transform: scale(1.05);
-        }
-
-        .about-text h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: var(--dark);
-        }
-
-        .about-text p {
-            margin-bottom: 1.5rem;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 2rem 1rem;
-            background-color: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-item:hover {
-            transform: translateY(-10px);
-        }
-
-        .stat-item i {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .stat-item h3 {
-            font-size: 2.5rem;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-item p {
-            color: var(--text);
-        }
-
-        .initiatives {
-            background-color: var(--white);
-        }
-
-        .initiatives-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-        }
-
-        .initiative-card {
-            background-color: var(--light);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .initiative-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .initiative-img {
-            height: 200px;
-            overflow: hidden;
-        }
-
-        .initiative-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .initiative-card:hover .initiative-img img {
-            transform: scale(1.1);
-        }
-
-        .initiative-content {
-            padding: 1.5rem;
-        }
-
-        .initiative-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--dark);
-        }
-
-        .initiative-content p {
-            margin-bottom: 1.5rem;
-        }
-
-        .cta {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: var(--white);
-            text-align: center;
-            padding: 5rem 0;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta .btn {
-            background-color: var(--white);
-            color: var(--primary);
-        }
-
-        .cta .btn:hover {
-            background-color: var(--accent);
-            color: var(--white);
-        }
-
-        footer {
-            background-color: var(--dark);
-            color: var(--white);
-            padding: 3rem 0 1rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-column h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 2px;
-            background-color: var(--accent);
-        }
-
-        .footer-column p {
-            margin-bottom: 1rem;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-links li a {
-            color: var(--light);
-            text-decoration: none;
+        
+        .conservation-card {
             transition: all 0.3s ease;
         }
-
-        .footer-links li a:hover {
-            color: var(--accent);
-            padding-left: 5px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            color: var(--white);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .social-links a:hover {
-            background-color: var(--accent);
+        
+        .conservation-card:hover {
             transform: translateY(-5px);
         }
-
-        .copyright {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .mobile-menu {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        @media (max-width: 992px) {
-            .about-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .initiatives-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .footer-content {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            nav ul {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: var(--primary);
-                flex-direction: column;
-                padding: 1rem 0;
-                text-align: center;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            }
-            
-            nav ul.active {
-                display: flex;
-            }
-            
-            nav ul li {
-                margin: 0;
-                padding: 0.8rem 0;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .initiatives-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Animation for stats counter */
+        
         .counter {
-            transition: all 0.5s ease;
+            font-variant-numeric: tabular-nums;
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <header>
-        <div class="container nav-container">
-            <div class="logo">
-                <i class="fas fa-seedling"></i>
-                <span>Green Network</span>
-            </div>
-            <nav>
-                <div class="mobile-menu">
-                    <i class="fas fa-bars"></i>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 bg-blur shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                    <i class="fa fa-leaf text-white text-xl"></i>
                 </div>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#initiatives">Initiatives</a></li>
-                    <li><a href="#get-involved">Get Involved</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
+                <span class="text-xl font-bold text-primary">LangurConserve</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="nav-link active-nav text-gray-800 hover:text-primary font-medium">Home</a>
+                <a href="#species" class="nav-link text-gray-800 hover:text-primary font-medium">Species Profile</a>
+                <a href="#gallery" class="nav-link text-gray-800 hover:text-primary font-medium">Photo Gallery</a>
+                <a href="#conservation" class="nav-link text-gray-800 hover:text-primary font-medium">Conservation</a>
+                <a href="#map" class="nav-link text-gray-800 hover:text-primary font-medium">Habitat Map</a>
+                <a href="#get-involved" class="bg-primary hover:bg-dark text-white px-6 py-2 rounded-full transition duration-300 ease-in-out transform hover:scale-105">Get Involved</a>
+            </div>
+            
+            <!-- Mobile Navigation Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-800 hover:text-primary focus:outline-none">
+                    <i class="fa fa-bars text-2xl"></i>
+                </button>
+            </div>
         </div>
-    </header>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+                <a href="#home" class="mobile-nav-link text-gray-800 hover:text-primary font-medium py-2">Home</a>
+                <a href="#species" class="mobile-nav-link text-gray-800 hover:text-primary font-medium py-2">Species Profile</a>
+                <a href="#gallery" class="mobile-nav-link text-gray-800 hover:text-primary font-medium py-2">Photo Gallery</a>
+                <a href="#conservation" class="mobile-nav-link text-gray-800 hover:text-primary font-medium py-2">Conservation</a>
+                <a href="#map" class="mobile-nav-link text-gray-800 hover:text-primary font-medium py-2">Habitat Map</a>
+                <a href="#get-involved" class="bg-primary hover:bg-dark text-white px-6 py-2 rounded-full transition duration-300 ease-in-out text-center">Get Involved</a>
+            </div>
+        </div>
+    </nav>
 
     <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container hero-content">
-            <h1>Protect Our Planet, Preserve Our Future</h1>
-            <p>Join the global movement to create a sustainable world through conservation, education, and community action.</p>
-            <a href="#get-involved" class="btn">Join Our Network</a>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about">
-        <div class="container">
-            <div class="section-title">
-                <h2>About Green Network</h2>
-                <p>We are a global community dedicated to environmental protection and sustainable development.</p>
-            </div>
-            <div class="about-content">
-                <div class="about-img">
-                    <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Team planting trees">
-                </div>
-                <div class="about-text">
-                    <h3>Our Mission</h3>
-                    <p>Green Network is committed to creating a sustainable future by protecting natural ecosystems, promoting renewable energy, and empowering communities to take environmental action.</p>
-                    <p>Founded in 2010, we've grown from a small grassroots organization to an international network with over 50,000 members across 120 countries.</p>
-                    <p>Our approach combines scientific research, community engagement, and policy advocacy to address the most pressing environmental challenges of our time.</p>
-                    <a href="#" class="btn">Learn More</a>
-                </div>
-            </div>
-            <div class="stats">
-                <div class="stat-item">
-                    <i class="fas fa-tree"></i>
-                    <h3 class="counter" data-target="2500000">0</h3>
-                    <p>Trees Planted</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-users"></i>
-                    <h3 class="counter" data-target="50000">0</h3>
-                    <p>Active Members</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-globe-americas"></i>
-                    <h3 class="counter" data-target="120">0</h3>
-                    <p>Countries Reached</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-recycle"></i>
-                    <h3 class="counter" data-target="1500">0</h3>
-                    <p>Cleanup Projects</p>
-                </div>
+    <section id="home" class="bg-hero-pattern bg-cover bg-center h-screen flex items-center justify-center">
+        <div class="container mx-auto px-4 text-center text-white">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-shadow-lg animate__animated animate__fadeInDown">
+                Protecting the White-headed Langur
+            </h1>
+            <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-shadow animate__animated animate__fadeInUp">
+                Join us in safeguarding one of the world's most critically endangered primates, endemic to the karst mountains of southern China.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 animate__animated animate__fadeInUp animate__delay-1s">
+                <a href="#species" class="bg-white text-primary hover:bg-light px-8 py-3 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105">
+                    Learn More
+                </a>
+                <a href="#get-involved" class="bg-primary text-white hover:bg-dark px-8 py-3 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105">
+                    How to Help
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Initiatives Section -->
-    <section class="initiatives" id="initiatives">
-        <div class="container">
-            <div class="section-title">
-                <h2>Our Initiatives</h2>
-                <p>Discover the key programs and projects we're implementing to protect our planet.</p>
+    <!-- Species Profile Section -->
+    <section id="species" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Species Profile</h2>
+                <div class="w-24 h-1 bg-primary mx-auto"></div>
             </div>
-            <div class="initiatives-grid">
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://dialogue.earth/content/uploads/2021/04/lessons-from-the-rush-to-reforest-china-dialogue-2400x1599.jpg" alt="Reforestation">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <h3 class="text-2xl font-bold text-primary mb-4">Trachypithecus leucocephalus</h3>
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        The white-headed langur is a critically endangered species of langur endemic to the karst limestone hills of southern Guangxi province, China. This striking primate is characterized by its black body contrasted with a distinctive white head, shoulders, and the lower half of its tail.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                        <div class="fact-card bg-light p-6 rounded-lg shadow-md">
+                            <h4 class="font-semibold text-primary mb-2">Physical Characteristics</h4>
+                            <ul class="text-gray-700 space-y-2">
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Body length: 50-70 cm</li>
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Tail length: 60-80 cm</li>
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Weight: 8-10 kg</li>
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Distinctive white head and shoulders</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="fact-card bg-light p-6 rounded-lg shadow-md">
+                            <h4 class="font-semibold text-primary mb-2">Behavior & Habitat</h4>
+                            <ul class="text-gray-700 space-y-2">
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Diurnal and arboreal</li>
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Lives in groups of 2-31 individuals</li>
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Feeds primarily on leaves, fruits, and flowers</li>
+                                <li><i class="fa fa-check-circle text-secondary mr-2"></i> Inhabits karst limestone forests</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="initiative-content">
-                        <h3>Global Reforestation</h3>
-                        <p>Planting millions of trees worldwide to restore ecosystems, combat climate change, and protect biodiversity.</p>
-                        <a href="#" class="btn">Learn More</a>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fa fa-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>Conservation Status:</strong> Critically Endangered (IUCN Red List). Only about 1,400 individuals remain in the wild.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://images.unsplash.com/photo-1621451537084-482c73073a0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Ocean Conservation">
-                    </div>
-                    <div class="initiative-content">
-                        <h3>Ocean Conservation</h3>
-                        <p>Protecting marine ecosystems, reducing plastic pollution, and promoting sustainable fishing practices.</p>
-                        <a href="#" class="btn">Learn More</a>
+                
+                <div class="order-1 lg:order-2">
+                    <div class="relative">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/labis/56949be1b7e008dd65d5aabe47b290e0~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=bs6LXjR88TQsiS%2FuBY3Qh8OJO%2BI%3D" alt="White-headed Langur" class="w-full h-auto rounded-lg shadow-xl">
+                        <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-lg shadow-lg">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center mr-4">
+                                    <i class="fa fa-map-marker text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Endemic to China</h4>
+                                    <p class="text-sm text-gray-600">Found only in southern Guangxi province</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80" alt="Renewable Energy">
+            </div>
+            
+            <!-- Population Trend -->
+            <div class="mt-20 bg-light rounded-xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-primary mb-6 text-center">Population Trend</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-sm text-gray-500 mb-2">1980s</p>
+                        <p class="text-3xl font-bold text-primary counter">300</p>
+                        <p class="text-sm text-gray-500">Individuals</p>
                     </div>
-                    <div class="initiative-content">
-                        <h3>Renewable Energy</h3>
-                        <p>Promoting solar, wind, and other clean energy sources to reduce dependence on fossil fuels.</p>
-                        <a href="#" class="btn">Learn More</a>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-sm text-gray-500 mb-2">2000</p>
+                        <p class="text-3xl font-bold text-primary counter">600</p>
+                        <p class="text-sm text-gray-500">Individuals</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-sm text-gray-500 mb-2">2010</p>
+                        <p class="text-3xl font-bold text-primary counter">818</p>
+                        <p class="text-sm text-gray-500">Individuals</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-sm text-gray-500 mb-2">2025</p>
+                        <p class="text-3xl font-bold text-secondary counter">1,400+</p>
+                        <p class="text-sm text-gray-500">Individuals</p>
+                    </div>
+                </div>
+                <p class="text-center text-gray-600 mt-6">Thanks to conservation efforts, the population has been steadily increasing over the past four decades.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Photo Gallery Section -->
+    <section id="gallery" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Photo Gallery</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Explore the beauty of the white-headed langur in its natural karst habitat through these stunning photographs.</p>
+                <div class="w-24 h-1 bg-primary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Gallery Item 1 -->
+                <div class="gallery-item bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/labis/c68f0e2c909d49c3b9d48d25d05aec09~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=Bl4DZFcos3K0QeEBOFsL%2BuLQSqs%3D" alt="White-headed Langur in Tree" class="w-full h-64 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <p class="text-white p-4 text-sm">A white-headed langur rests among the foliage in its karst mountain habitat.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gallery Item 2 -->
+                <div class="gallery-item bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/d4bdf4029f68e2b4062d35407a040ff4~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=Sup4UFkKm%2F3VyQ2KKep7I%2F6vl2s%3D" alt="White-headed Langur Family" class="w-full h-64 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <p class="text-white p-4 text-sm">Langurs gather in a tree with vibrant red flowers in the Chongzuo Nature Reserve.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gallery Item 3 -->
+                <div class="gallery-item bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1431221143375970321~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=FwuflTgtWfgiRTjTDCt5nb%2B8bcA%3D" alt="White-headed Langur in Karst Landscape" class="w-full h-64 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <p class="text-white p-4 text-sm">The unique karst limestone formations provide essential habitat for these primates.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gallery Item 4 -->
+                <div class="gallery-item bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/965361227747295332~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=h4jDKWg0qLRdllmMfRkEeBDVrPY%3D" alt="White-headed Langur Close-up" class="w-full h-64 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <p class="text-white p-4 text-sm">Close-up portrait showing the distinctive white head and black body of the species.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gallery Item 5 -->
+                <div class="gallery-item bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/f94d43e17807b670699e3d325b282206~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=6dZnHfGy9Vi0D2zmhRlajvaC5Rw%3D" alt="White-headed Langur Feeding" class="w-full h-64 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <p class="text-white p-4 text-sm">A langur feeds on leaves in the dense forest canopy of its mountain home.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gallery Item 6 -->
+                <div class="gallery-item bg-white rounded-xl overflow-hidden shadow-lg">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/965361227747295332~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634484&x-signature=%2Fu71yV8wIr2FFaqkCNB2J0YimMU%3D" alt="White-headed Langur in Forest" class="w-full h-64 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                            <p class="text-white p-4 text-sm">The langur's黑白 fur provides excellent camouflage in the dappled sunlight of the forest.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <button id="load-more-gallery" class="bg-white border border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105">
+                    Load More Photos
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conservation Initiatives Section -->
+    <section id="conservation" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Conservation Initiatives</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Discover the ongoing efforts to protect and preserve the white-headed langur and its unique karst habitat.</p>
+                <div class="w-24 h-1 bg-primary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Initiative 1 -->
+                <div class="conservation-card bg-light rounded-xl overflow-hidden shadow-md">
+                    <div class="h-48 bg-primary flex items-center justify-center">
+                        <i class="fa fa-shield text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Protected Areas</h3>
+                        <p class="text-gray-700 mb-4">
+                            The Chongzuo White-headed Langur National Nature Reserve was established to provide a safe haven for these primates. The reserve covers over 25,000 hectares of critical habitat.
+                        </p>
+                        <div class="flex items-center text-primary">
+                            <span class="font-medium">Learn more</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Initiative 2 -->
+                <div class="conservation-card bg-light rounded-xl overflow-hidden shadow-md">
+                    <div class="h-48 bg-secondary flex items-center justify-center">
+                        <i class="fa fa-video-camera text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Smart Monitoring</h3>
+                        <p class="text-gray-700 mb-4">
+                            AI-powered camera traps and remote video surveillance systems monitor langur populations around the clock, providing valuable data for conservation management.
+                        </p>
+                        <div class="flex items-center text-secondary">
+                            <span class="font-medium">Learn more</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Initiative 3 -->
+                <div class="conservation-card bg-light rounded-xl overflow-hidden shadow-md">
+                    <div class="h-48 bg-accent flex items-center justify-center">
+                        <i class="fa fa-tree text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Habitat Restoration</h3>
+                        <p class="text-gray-700 mb-4">
+                            Over 500 acres of langur habitat have been restored, including the creation of ecological corridors, water sources, and food plantations to support the growing population.
+                        </p>
+                        <div class="flex items-center text-accent">
+                            <span class="font-medium">Learn more</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Initiative 4 -->
+                <div class="conservation-card bg-light rounded-xl overflow-hidden shadow-md">
+                    <div class="h-48 bg-dark flex items-center justify-center">
+                        <i class="fa fa-book text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Legislation & Policy</h3>
+                        <p class="text-gray-700 mb-4">
+                            The first national-level legislation for primate habitat protection was enacted in 2021, providing legal safeguards for the langur's environment and严厉惩罚 poaching.
+                        </p>
+                        <div class="flex items-center text-dark">
+                            <span class="font-medium">Learn more</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Initiative 5 -->
+                <div class="conservation-card bg-light rounded-xl overflow-hidden shadow-md">
+                    <div class="h-48 bg-karst flex items-center justify-center">
+                        <i class="fa fa-users text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Community Engagement</h3>
+                        <p class="text-gray-700 mb-4">
+                            Local communities are involved in conservation efforts through eco-tourism initiatives that provide sustainable livelihoods while raising awareness about langur protection.
+                        </p>
+                        <div class="flex items-center text-karst">
+                            <span class="font-medium">Learn more</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Initiative 6 -->
+                <div class="conservation-card bg-light rounded-xl overflow-hidden shadow-md">
+                    <div class="h-48 bg-karst-dark flex items-center justify-center">
+                        <i class="fa fa-graduation-cap text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Education & Awareness</h3>
+                        <p class="text-gray-700 mb-4">
+                            The White-headed Langur Museum and educational programs teach visitors about the species' importance and the need for conservation, reaching over 100,000 people annually.
+                        </p>
+                        <div class="flex items-center text-karst-dark">
+                            <span class="font-medium">Learn more</span>
+                            <i class="fa fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success Story -->
+            <div class="mt-20 bg-primary rounded-xl overflow-hidden shadow-xl">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 md:p-12 text-white">
+                        <h3 class="text-2xl md:text-3xl font-bold mb-6">A Conservation Success Story</h3>
+                        <p class="mb-6 leading-relaxed">
+                            Once on the brink of extinction with only 300 individuals remaining in the 1980s, the white-headed langur population has rebounded to over 1,400 today. This remarkable recovery is a testament to the effectiveness of targeted conservation efforts.
+                        </p>
+                        <p class="mb-8 leading-relaxed">
+                            Through habitat protection, anti-poaching measures, community engagement, and scientific monitoring, we've created a model for endangered species recovery that can be applied worldwide.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <div class="bg-white bg-opacity-20 rounded-lg px-6 py-3">
+                                <p class="text-sm uppercase tracking-wider mb-1">Population Increase</p>
+                                <p class="text-2xl font-bold">+367%</p>
+                            </div>
+                            <div class="bg-white bg-opacity-20 rounded-lg px-6 py-3">
+                                <p class="text-sm uppercase tracking-wider mb-1">Protected Habitat</p>
+                                <p class="text-2xl font-bold">25,000+ ha</p>
+                            </div>
+                            <div class="bg-white bg-opacity-20 rounded-lg px-6 py-3">
+                                <p class="text-sm uppercase tracking-wider mb-1">Community Partners</p>
+                                <p class="text-2xl font-bold">50+</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-cover bg-center" style="background-image: url('https://p3-doubao-search-sign.byteimg.com/labis/4e06703a288df016da3280c12d0b8867~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634483&x-signature=Zys9ciXfGJKcevUGokzE5gGfERw%3D')"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section id="map" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Habitat Map</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Explore the geographic distribution of the white-headed langur and discover the protected areas where these endangered primates live.</p>
+                <div class="w-24 h-1 bg-primary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div id="langur-map" class="map-container shadow-lg"></div>
+                </div>
+                
+                <div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 h-full">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6">Key Locations</h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Location 1 -->
+                            <div class="location-item cursor-pointer p-4 rounded-lg hover:bg-light transition duration-300" data-location="chongzuo">
+                                <h4 class="font-semibold text-primary mb-2">Chongzuo White-headed Langur National Nature Reserve</h4>
+                                <p class="text-gray-700 text-sm mb-3">
+                                    The largest protected area for white-headed langurs, covering 25,578 hectares and home to approximately 94% of the total population.
+                                </p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fa fa-map-marker mr-2 text-primary"></i>
+                                    <span>Guangxi Zhuang Autonomous Region</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Location 2 -->
+                            <div class="location-item cursor-pointer p-4 rounded-lg hover:bg-light transition duration-300" data-location="nonggang">
+                                <h4 class="font-semibold text-primary mb-2">Nonggang National Nature Reserve</h4>
+                                <p class="text-gray-700 text-sm mb-3">
+                                    A UNESCO Biosphere Reserve that provides critical habitat for approximately 6% of the white-headed langur population.
+                                </p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fa fa-map-marker mr-2 text-primary"></i>
+                                    <span>Guangxi Zhuang Autonomous Region</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Location 3 -->
+                            <div class="location-item cursor-pointer p-4 rounded-lg hover:bg-light transition duration-300" data-location="fusui">
+                                <h4 class="font-semibold text-primary mb-2">Fusui Rare and Precious Animal Nature Reserve</h4>
+                                <p class="text-gray-700 text-sm mb-3">
+                                    A key protected area that supports a small but important population of white-headed langurs.
+                                </p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fa fa-map-marker mr-2 text-primary"></i>
+                                    <span>Guangxi Zhuang Autonomous Region</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 p-4 bg-yellow-50 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800 mb-2">Habitat Threats</h4>
+                            <ul class="text-sm text-yellow-700 space-y-2">
+                                <li><i class="fa fa-exclamation-circle mr-2"></i> Habitat fragmentation due to agriculture</li>
+                                <li><i class="fa fa-exclamation-circle mr-2"></i> Human settlements and infrastructure</li>
+                                <li><i class="fa fa-exclamation-circle mr-2"></i> Hybridization with François' langurs</li>
+                                <li><i class="fa fa-exclamation-circle mr-2"></i> Climate change impacts</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta" id="get-involved">
-        <div class="container">
-            <h2>Join Our Global Movement</h2>
-            <p>Together, we can create a sustainable future for generations to come. Every action counts, no matter how small.</p>
-            <a href="#" class="btn">Become a Member</a>
+    <!-- Get Involved Section -->
+    <section id="get-involved" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Get Involved</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Your support can make a difference in protecting the white-headed langur and its unique karst habitat.</p>
+                <div class="w-24 h-1 bg-primary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Way 1 -->
+                <div class="bg-light rounded-xl p-8 shadow-md text-center">
+                    <div class="w-20 h-20 rounded-full bg-primary bg-opacity-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fa fa-heart text-primary text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Donate</h3>
+                    <p class="text-gray-700 mb-6">
+                        Your financial support helps fund conservation efforts, habitat restoration, and anti-poaching patrols that protect these endangered primates.
+                    </p>
+                    <button class="bg-primary hover:bg-dark text-white px-6 py-3 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105">
+                        Donate Now
+                    </button>
+                </div>
+                
+                <!-- Way 2 -->
+                <div class="bg-light rounded-xl p-8 shadow-md text-center">
+                    <div class="w-20 h-20 rounded-full bg-secondary bg-opacity-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fa fa-globe text-secondary text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Visit</h3>
+                    <p class="text-gray-700 mb-6">
+                        Experience the beauty of the white-headed langur in its natural habitat through responsible eco-tourism that supports conservation efforts.
+                    </p>
+                    <button class="bg-secondary hover:bg-dark text-white px-6 py-3 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105">
+                        Plan Your Trip
+                    </button>
+                </div>
+                
+                <!-- Way 3 -->
+                <div class="bg-light rounded-xl p-8 shadow-md text-center">
+                    <div class="w-20 h-20 rounded-full bg-accent bg-opacity-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fa fa-share-alt text-accent text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Spread the Word</h3>
+                    <p class="text-gray-700 mb-6">
+                        Help raise awareness about the white-headed langur and the importance of primate conservation through social media and community outreach.
+                    </p>
+                    <button class="bg-accent hover:bg-dark text-white px-6 py-3 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105">
+                        Share Story
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Newsletter -->
+            <div class="mt-20 bg-primary rounded-xl overflow-hidden shadow-xl">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 md:p-12 text-white">
+                        <h3 class="text-2xl md:text-3xl font-bold mb-6">Stay Updated</h3>
+                        <p class="mb-8 leading-relaxed">
+                            Subscribe to our newsletter to receive the latest updates on white-headed langur conservation, research findings, and how you can help protect these amazing primates.
+                        </p>
+                        <form class="space-y-4">
+                            <div>
+                                <input type="text" placeholder="Your Name" class="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-white">
+                            </div>
+                            <div>
+                                <input type="email" placeholder="Your Email" class="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-white">
+                            </div>
+                            <button type="submit" class="bg-white text-primary hover:bg-light px-8 py-3 rounded-full font-semibold transition duration-300 ease-in-out transform hover:scale-105 w-full">
+                                Subscribe
+                            </button>
+                        </form>
+                    </div>
+                    <div class="bg-cover bg-center" style="background-image: url('https://p11-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/789423845287264463~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778634484&x-signature=sSBkK5WQhoR%2BjZWig6TPzde1tAw%3D')"></div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>Green Network</h3>
-                    <p>We are dedicated to protecting our planet through collaborative action, education, and sustainable solutions.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Column 1 -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                            <i class="fa fa-leaf text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold">LangurConserve</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        Dedicated to the protection and conservation of the critically endangered white-headed langur and its unique karst habitat.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="footer-column">
-                    <h3>Quick Links</h3>
-                    <ul class="footer-links">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#initiatives">Initiatives</a></li>
-                        <li><a href="#get-involved">Get Involved</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                
+                <!-- Column 2 -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                        <li><a href="#species" class="text-gray-400 hover:text-white transition duration-300">Species Profile</a></li>
+                        <li><a href="#gallery" class="text-gray-400 hover:text-white transition duration-300">Photo Gallery</a></li>
+                        <li><a href="#conservation" class="text-gray-400 hover:text-white transition duration-300">Conservation</a></li>
+                        <li><a href="#map" class="text-gray-400 hover:text-white transition duration-300">Habitat Map</a></li>
+                        <li><a href="#get-involved" class="text-gray-400 hover:text-white transition duration-300">Get Involved</a></li>
                     </ul>
                 </div>
-                <div class="footer-column">
-                    <h3>Our Programs</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Reforestation</a></li>
-                        <li><a href="#">Ocean Cleanup</a></li>
-                        <li><a href="#">Wildlife Protection</a></li>
-                        <li><a href="#">Climate Education</a></li>
-                        <li><a href="#">Sustainable Agriculture</a></li>
+                
+                <!-- Column 3 -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Resources</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">Research Papers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">Conservation Reports</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">Educational Materials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">Photo Library</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">News & Updates</a></li>
                     </ul>
                 </div>
-                <div class="footer-column">
-                    <h3>Contact Us</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Copper Creek Drive, New York</p>
-                    <p><i class="fas fa-phone"></i> +1 (312) 171-0771</p>
-                    <p><i class="fas fa-envelope"></i> support@greennetwork.org</p>
+                
+                <!-- Column 4 -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Contact Us</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker text-primary mt-1 mr-3"></i>
+                            <span class="text-gray-400">Chongzuo White-headed Langur National Nature Reserve, Guangxi, China</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope text-primary mr-3"></i>
+                            <a href="mailto:info@langurconserve.org" class="text-gray-400 hover:text-white transition duration-300">info@langurconserve.org</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone text-primary mr-3"></i>
+                            <a href="tel:+86123456789" class="text-gray-400 hover:text-white transition duration-300">+86 (123) 456-789</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <div class="copyright">
-                <p>&copy; 2025 Green Network. All rights reserved.</p>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">
+                    &copy; 2025 LangurConserve. All rights reserved.
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition duration-300">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition duration-300">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition duration-300">Cookie Policy</a>
+                </div>
             </div>
         </div>
     </footer>
 
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary hover:bg-dark text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out transform hover:scale-105 opacity-0 invisible">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
     <script>
         // Mobile Menu Toggle
-        document.querySelector('.mobile-menu').addEventListener('click', function() {
-            document.querySelector('nav ul').classList.toggle('active');
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
         });
-
-        // Counter Animation
-        function animateCounters() {
-            const counters = document.querySelectorAll('.counter');
-            const speed = 200; // The lower the slower
+        
+        // Mobile Menu Links Close Menu
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+        });
+        
+        // Active Nav Link Highlighting
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        window.addEventListener('scroll', function() {
+            let current = '';
             
-            counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
                 
-                const inc = target / speed;
-                
-                if(count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(animateCounters, 1);
-                } else {
-                    counter.innerText = target;
+                if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
                 }
             });
-        }
-
-        // Initialize counters when page loads
-        window.addEventListener('load', animateCounters);
-
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                    
-                    document.querySelector('nav ul').classList.remove('active');
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active-nav');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active-nav');
                 }
+            });
+            
+            // Back to Top Button Visibility
+            const backToTopButton = document.getElementById('back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.remove('opacity-100', 'visible');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        // Back to Top Button Functionality
+        document.getElementById('back-to-top').addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Initialize Interactive Map
+        const map = L.map('langur-map').setView([22.4, 107.3], 11);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Add Map Markers
+        const chongzuoMarker = L.marker([22.4, 107.3]).addTo(map);
+        chongzuoMarker.bindPopup("<b>Chongzuo White-headed Langur National Nature Reserve</b><br>Home to 94% of the white-headed langur population.");
+        
+        const nonggangMarker = L.marker([22.8, 106.9]).addTo(map);
+        nonggangMarker.bindPopup("<b>Nonggang National Nature Reserve</b><br>UNESCO Biosphere Reserve supporting 6% of the population.");
+        
+        const fusuiMarker = L.marker([22.6, 107.5]).addTo(map);
+        fusuiMarker.bindPopup("<b>Fusui Rare and Precious Animal Nature Reserve</b><br>Important habitat for a small langur population.");
+        
+        // Add Protected Area Polygons (Simplified)
+        const chongzuoArea = L.polygon([
+            [22.5, 107.2],
+            [22.5, 107.4],
+            [22.3, 107.4],
+            [22.3, 107.2]
+        ], {color: 'green', fillOpacity: 0.2}).addTo(map);
+        chongzuoArea.bindPopup("Chongzuo White-headed Langur National Nature Reserve");
+        
+        const nonggangArea = L.polygon([
+            [22.9, 106.8],
+            [22.9, 107.0],
+            [22.7, 107.0],
+            [22.7, 106.8]
+        ], {color: 'green', fillOpacity: 0.2}).addTo(map);
+        nonggangArea.bindPopup("Nonggang National Nature Reserve");
+        
+        // Location Item Click Event
+        document.querySelectorAll('.location-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const location = this.getAttribute('data-location');
+                
+                if (location === 'chongzuo') {
+                    map.setView([22.4, 107.3], 12);
+                    chongzuoMarker.openPopup();
+                } else if (location === 'nonggang') {
+                    map.setView([22.8, 106.9], 12);
+                    nonggangMarker.openPopup();
+                } else if (location === 'fusui') {
+                    map.setView([22.6, 107.5], 12);
+                    fusuiMarker.openPopup();
+                }
+            });
+        });
+        
+        // Load More Gallery Button
+        document.getElementById('load-more-gallery').addEventListener('click', function() {
+            this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Loading...';
+            
+            // Simulate loading delay
+            setTimeout(() => {
+                this.innerHTML = 'No More Photos';
+                this.disabled = true;
+                this.classList.add('opacity-50', 'cursor-not-allowed');
+            }, 1500);
+        });
+        
+        // GSAP Animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Register ScrollTrigger plugin
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Hero Section Animations
+            gsap.from('.animate__fadeInDown', {
+                y: -50,
+                opacity: 0,
+                duration: 1,
+                delay: 0.2
+            });
+            
+            gsap.from('.animate__fadeInUp', {
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                delay: 0.5,
+                stagger: 0.2
+            });
+            
+            // Species Profile Animations
+            gsap.from('#species h2', {
+                scrollTrigger: {
+                    trigger: '#species',
+                    start: 'top 80%'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8
+            });
+            
+            gsap.from('#species .order-1', {
+                scrollTrigger: {
+                    trigger: '#species',
+                    start: 'top 60%'
+                },
+                x: -100,
+                opacity: 0,
+                duration: 0.8,
+                delay: 0.3
+            });
+            
+            gsap.from('#species .order-2', {
+                scrollTrigger: {
+                    trigger: '#species',
+                    start: 'top 60%'
+                },
+                x: 100,
+                opacity: 0,
+                duration: 0.8,
+                delay: 0.3
+            });
+            
+            // Population Trend Counter Animation
+            gsap.utils.toArray('.counter').forEach(counter => {
+                gsap.from(counter, {
+                    scrollTrigger: {
+                        trigger: counter,
+                        start: 'top 80%'
+                    },
+                    textContent: 0,
+                    duration: 2,
+                    ease: 'power1.out',
+                    snap: { textContent: 1 },
+                    stagger: {
+                        each: 0.5,
+                        onUpdate: function() {
+                            const target = this.targets()[0];
+                            const value = parseInt(target.textContent);
+                            const originalValue = target.getAttribute('data-original') || target.textContent;
+                            
+                            if (!target.getAttribute('data-original')) {
+                                target.setAttribute('data-original', originalValue);
+                            }
+                            
+                            if (originalValue.includes('+')) {
+                                target.textContent = value + '+';
+                            } else {
+                                target.textContent = value;
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Gallery Item Animations
+            gsap.from('.gallery-item', {
+                scrollTrigger: {
+                    trigger: '#gallery',
+                    start: 'top 80%'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1
+            });
+            
+            // Conservation Initiatives Animations
+            gsap.from('.conservation-card', {
+                scrollTrigger: {
+                    trigger: '#conservation',
+                    start: 'top 80%'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1
+            });
+            
+            // Map Section Animations
+            gsap.from('#langur-map', {
+                scrollTrigger: {
+                    trigger: '#map',
+                    start: 'top 80%'
+                },
+                x: -50,
+                opacity: 0,
+                duration: 0.8
+            });
+            
+            gsap.from('#map .bg-white', {
+                scrollTrigger: {
+                    trigger: '#map',
+                    start: 'top 80%'
+                },
+                x: 50,
+                opacity: 0,
+                duration: 0.8
+            });
+            
+            // Get Involved Section Animations
+            gsap.from('#get-involved > div > div', {
+                scrollTrigger: {
+                    trigger: '#get-involved',
+                    start: 'top 80%'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1
             });
         });
     </script>
 </body>
-
 </html>
